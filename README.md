@@ -36,5 +36,14 @@ python vae_color_training.py
 ![](README_imgs/env_grid.png)
 
 ## Exploring the latent space & generated image
-
+### With dim(Z) > 2
 ![](README_imgs/interface.png)
+
+### With dim(Z) = 2
+You can move among the 2d plane and see the impact on the generated image.
+
+The blue dots indicate the vector values in the latent space for the training data.
+
+It can be funny to get very far away from those ground truth points and get funky results :)
+
+![](README_imgs/interface_2d.png)

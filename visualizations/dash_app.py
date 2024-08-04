@@ -51,11 +51,11 @@ fig.add_shape(
     type="circle",
     xref="x",
     yref="y",
-    fillcolor="red",
-    x0=-0.15,
-    y0=-0.15,
-    x1=0.15,
-    y1=0.15,
+    fillcolor="white",
+    x0=-0.1,
+    y0=-0.1,
+    x1=0.1,
+    y1=0.1,
     line_color="black",
 )
 
