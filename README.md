@@ -5,7 +5,8 @@ Just some tests around VAE, to then try and implement technique such as DreamerV
 You'll need PyTorch, Dash (for interactive play with the model) and PyGame to simulate a "game" (not **really** a game tho lol)
 
 ```bash
-pip install -r requirements.txt```
+pip install -r requirements.txt
+```
 
 ## 2. Explore the latent space
 You can explore the 8-dimensional latent from an already trained model by starting the Dash app:
@@ -23,6 +24,7 @@ python main.py
 
 ## 4. Retrain the model
 Use the vae_color_training file to train the VAE on the generated data
+
 ```bash
 python vae_color_training.py
 ```
