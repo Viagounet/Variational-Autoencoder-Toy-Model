@@ -1,10 +1,11 @@
 import torch
 import torch.nn as nn
 import dash
-from dash import dcc, html
-from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 import plotly.express as px
 import numpy as np
+from dash import dcc, html
+from dash.dependencies import Input, Output
 
 
 # Define the encoder
@@ -98,17 +99,25 @@ def slider(i: int) -> dcc.Slider:
 
 
 # Create a Dash app
-app = dash.Dash(__name__)
+app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = html.Div(
     [
         html.H1("VAE Color Image Generator"),
         html.Div(
             [
-                html.Div([html.Label(f"Latent Dimension {i}"), slider(i), html.Br()])
-                for i in range(latent_dim)
-            ]
+                html.Div(
+                    [
+                        html.Div(
+                            [html.Label(f"Latent Dimension {i}"), slider(i), html.Br()]
+                        )
+                        for i in range(latent_dim)
+                    ],
+                    style={"width": "50vw"},
+                ),
+                html.Div(id="output-image"),
+            ],
+            className="d-flex flex-row",
         ),
-        html.Div(id="output-image"),
     ]
 )
 
@@ -123,9 +132,20 @@ def update_image(*latent_values):
     generated_image = np.transpose(
         np.squeeze(generated_image), (1, 2, 0)
     )  # Rearrange dimensions for RGB
+
     fig = px.imshow(generated_image)
-    fig.update_layout(coloraxis_showscale=False)
-    return dcc.Graph(figure=fig)
+    fig.update_layout(
+        coloraxis_showscale=False,
+        margin=dict(l=0, r=0, t=0, b=0),
+        xaxis=dict(showticklabels=False, showgrid=False, zeroline=False),
+        yaxis=dict(showticklabels=False, showgrid=False, zeroline=False),
+    )
+
+    return dcc.Graph(
+        figure=fig,
+        style={"width": "100%", "height": "100%"},
+        config={"responsive": True},
+    )
 
 
 if __name__ == "__main__":

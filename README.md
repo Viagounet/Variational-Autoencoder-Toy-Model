@@ -26,3 +26,13 @@ Use the vae_color_training file to train the VAE on the generated data
 ```bash
 python vae_color_training.py
 ```
+
+# Images
+
+## Original training frames (9 random examples out of 10k)
+
+![](README_imgs\env_grid.png)
+
+## Exploring the latent space & generated image
+
+![](README_imgs\interface.png)
