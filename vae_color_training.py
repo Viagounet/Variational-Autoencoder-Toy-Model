@@ -7,6 +7,8 @@ from torchvision import transforms, datasets
 from torch.utils.data import DataLoader, Dataset, random_split
 from vae_torch import VAE
 
+LATENT_DIM = 2
+
 
 # Custom dataset class to load color images from a single folder
 class CustomImageDataset(Dataset):
@@ -53,7 +55,7 @@ test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False)
 
 # Train the VAE
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-vae = VAE(latent_dim=8).to(device)
+vae = VAE(latent_dim=LATENT_DIM).to(device)
 optimizer = optim.Adam(vae.parameters(), lr=1e-3)
 
 num_epochs = 100
@@ -88,4 +90,4 @@ for epoch in range(num_epochs):
     )
 
 # Save the model state_dict
-torch.save(vae.state_dict(), "color_vae_state_dict.pth")
+torch.save(vae.state_dict(), f"models/sim1_ls{LATENT_DIM}.pth")

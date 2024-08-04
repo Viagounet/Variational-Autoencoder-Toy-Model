@@ -10,9 +10,11 @@ from vae_torch import VAE
 
 
 # Load the trained VAE model
-latent_dim = 8
+MODEL = "models/sim1_ls2.pth"
+
+latent_dim = int(MODEL.replace("models/sim1_ls", "").split(".")[0])
 vae = VAE(latent_dim)
-vae.load_state_dict(torch.load("color_vae_state_dict.pth"))
+vae.load_state_dict(torch.load(MODEL))
 vae.eval()
 
 
@@ -53,6 +55,7 @@ app.layout = html.Div(
                 html.Div(id="output-image"),
             ],
             className="d-flex flex-row",
+            style={"height": "80vh"},
         ),
     ]
 )
@@ -68,7 +71,6 @@ def update_image(*latent_values):
     generated_image = np.transpose(
         np.squeeze(generated_image), (1, 2, 0)
     )  # Rearrange dimensions for RGB
-
     fig = px.imshow(generated_image)
     fig.update_layout(
         coloraxis_showscale=False,
@@ -85,4 +87,4 @@ def update_image(*latent_values):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)
