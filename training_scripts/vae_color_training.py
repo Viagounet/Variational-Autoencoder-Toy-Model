@@ -17,22 +17,39 @@ parser.add_argument("-n", "--name")
 parser.add_argument("-e", "--epochs", type=int)
 
 
-# Custom dataset class to load color images from a single folder
+import os
+from PIL import Image
+from torch.utils.data import Dataset
+
+
 class CustomImageDataset(Dataset):
-    def __init__(self, img_dir, transform=None):
+    def __init__(self, img_dir, transform=None, placeholder_image=None):
         self.img_dir = img_dir
         self.transform = transform
         self.img_files = [f for f in os.listdir(img_dir) if f.endswith(".png")]
+        self.placeholder_image = (
+            placeholder_image  # You can pass a placeholder image if needed
+        )
 
     def __len__(self):
         return len(self.img_files)
 
     def __getitem__(self, idx):
-        img_path = os.path.join(self.img_dir, self.img_files[idx])
-        image = Image.open(img_path).convert("RGB")  # Convert image to RGB
-        if self.transform:
-            image = self.transform(image)
-        return image
+        while idx < len(self.img_files):
+            img_path = os.path.join(self.img_dir, self.img_files[idx])
+            try:
+                image = Image.open(img_path).convert("RGB")  # Convert image to RGB
+                if self.transform:
+                    image = self.transform(image)
+                return image
+            except Exception as e:
+                print(f"Error loading image {img_path}: {e}")
+                idx += 1
+        if self.placeholder_image is not None:
+            if self.transform:
+                return self.transform(self.placeholder_image)
+            return self.placeholder_image
+        raise IndexError("All images in the dataset are invalid or not accessible.")
 
 
 # Define the loss function
@@ -58,8 +75,21 @@ if __name__ == "__main__":
         ]
     )
 
+<<<<<<< HEAD
     img_dir = "imgs/"  # Replace with your images directory
     dataset = CustomImageDataset(img_dir, transform=transform)
+=======
+    placeholder_image_path = "imgs/multivideos/frames/frame_0000001.png"
+    placeholder_image = Image.open(placeholder_image_path).convert("RGB")
+
+    img_dir = args.input_folder
+    # Initialize the dataset
+    dataset = CustomImageDataset(
+        img_dir=img_dir,
+        transform=transform,
+        placeholder_image=placeholder_image,
+    )
+>>>>>>> 2e61834... Minor updates
 
     # Split the dataset into training and testing sets
     train_size = int(0.7 * len(dataset))
@@ -93,7 +123,7 @@ if __name__ == "__main__":
             train_loss += loss.item()
             optimizer.step()
 
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 10 == 0 or epoch == 0:
             vae.eval()
             test_loss = 0
             with torch.no_grad():

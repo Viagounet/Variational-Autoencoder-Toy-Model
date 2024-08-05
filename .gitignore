@@ -1,1 +1,3 @@
 imgs
+inference_scripts/data/
+*.pth
