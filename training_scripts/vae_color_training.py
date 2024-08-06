@@ -75,10 +75,9 @@ if __name__ == "__main__":
         ]
     )
 
-<<<<<<< HEAD
     img_dir = "imgs/"  # Replace with your images directory
     dataset = CustomImageDataset(img_dir, transform=transform)
-=======
+
     placeholder_image_path = "imgs/multivideos/frames/frame_0000001.png"
     placeholder_image = Image.open(placeholder_image_path).convert("RGB")
 
@@ -89,7 +88,6 @@ if __name__ == "__main__":
         transform=transform,
         placeholder_image=placeholder_image,
     )
->>>>>>> 2e61834... Minor updates
 
     # Split the dataset into training and testing sets
     train_size = int(0.7 * len(dataset))
