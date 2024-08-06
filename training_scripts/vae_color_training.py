@@ -4,6 +4,10 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
+import numpy as np
+import torchvision
+import json
+from glob import glob
 
 from torchvision import transforms, datasets
 from torch.utils.data import DataLoader, Dataset, random_split
@@ -15,6 +19,7 @@ parser = ArgumentParser()
 parser.add_argument("-d", "--dim_ls", type=int)
 parser.add_argument("-n", "--name")
 parser.add_argument("-e", "--epochs", type=int)
+parser.add_argument("-s", "--scaling", type=float, default=1)
 
 
 import os
@@ -62,32 +67,62 @@ def loss_function(x, x_reconstructed, z_mean, z_log_var):
 if __name__ == "__main__":
     args = parser.parse_args()
     name = args.name
-    if os.path.exists(name):
-        raise FileExistsError("The log folder already exists")
+    num_epochs = args.epochs
+    img_dir = args.input_folder
+    scaling = args.scaling
+
+    first_image_path = glob(f"{img_dir}/*")[0]
+    first_image = Image.open(first_image_path).convert("RGB")
+    width, height = first_image.size
+
+    width = int(width * scaling)
+    height = int(height * scaling)
+
+    if os.path.exists(f"training_logs/{name}"):
+        erase_previous_save = input(
+            "Folder {folder} already exists, do you want to continue ? (y/n) : "
+        )
+        if erase_previous_save == "y":
+            pass
+        else:
+            exit()
     else:
         os.mkdir(f"training_logs/{name}")
     latent_dim = args.dim_ls
-
+    with open(f"models/{name}/{name}.json", "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "ls_dim": latent_dim,
+                "max_epochs": num_epochs,
+                "data_source": img_dir,
+                "images_size": [height, width],
+            },
+            f,
+            indent=4,
+            ensure_ascii=False,
+        )
     # Load and preprocess the dataset
     transform = transforms.Compose(
         [
+            transforms.Resize((height, width)),
             transforms.ToTensor(),
         ]
     )
 
+<<<<<<< HEAD
     img_dir = "imgs/"  # Replace with your images directory
     dataset = CustomImageDataset(img_dir, transform=transform)
-
+=======
     placeholder_image_path = "imgs/multivideos/frames/frame_0000001.png"
     placeholder_image = Image.open(placeholder_image_path).convert("RGB")
 
-    img_dir = args.input_folder
     # Initialize the dataset
     dataset = CustomImageDataset(
         img_dir=img_dir,
         transform=transform,
         placeholder_image=placeholder_image,
     )
+>>>>>>> 2e61834... Minor updates
 
     # Split the dataset into training and testing sets
     train_size = int(0.7 * len(dataset))
@@ -99,10 +134,8 @@ if __name__ == "__main__":
 
     # Train the VAE
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    vae = VAE(latent_dim=latent_dim).to(device)
-    optimizer = optim.Adam(vae.parameters(), lr=1e-2)
-
-    num_epochs = args.epochs
+    vae = VAE(latent_dim=latent_dim, input_shape=(3, height, width)).to(device)
+    optimizer = optim.Adam(vae.parameters(), lr=1e-3)
 
     epochs_train: list[int] = []
     epochs_test: list[int] = []
