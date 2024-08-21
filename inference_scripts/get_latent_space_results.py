@@ -15,45 +15,58 @@ from pathlib import Path
 from PIL import Image
 from torchvision import transforms
 
+from argparse import ArgumentParser
 
-# Load the trained VAE model
-MODEL = "models/sim1_ls2.pth"
-latent_dim = int(MODEL.replace("models/sim1_ls", "").split(".")[0])
-vae = VAE(latent_dim)
-vae.load_state_dict(torch.load(MODEL, weights_only=True))
-vae.eval()
+parser = ArgumentParser()
+parser.add_argument("-m", "--model")
+parser.add_argument("-o", "--output_folder")
+parser.add_argument("-d", "--latent_dim", type=int)
 
-encoder = vae.encoder
+if __name__ == "__main__":
+    # Load the trained VAE model
+    IMG_SIZE = (256, 192)
+    SHAPE = (3, 256, 192)
 
-transform = transforms.Compose(
-    [transforms.Resize((200, 200)), transforms.ToTensor()]  # Resize to 200x200
-)
+    args = parser.parse_args()
+    MODEL = args.model
+    latent_dim = args.latent_dim
+    output = args.output_folder
 
-path = Path("imgs")
-images = [file for file in path.iterdir() if file.is_file()]
+    vae = VAE(latent_dim, SHAPE)
+    vae.load_state_dict(torch.load(MODEL, weights_only=True))
+    vae.eval()
 
+    encoder = vae.encoder
 
-class VAEData(TypedDict):
-    file: list[str]
-    ls_mean: list[float]
-    ls_var: list[float]
+    transform = transforms.Compose(
+        [transforms.Resize(IMG_SIZE), transforms.ToTensor()]  # Resize to 200x200
+    )
 
+    path = Path("imgs/l")
+    images = [
+        file for file in path.iterdir() if (file.is_file() and ".png" in file.name)
+    ]
 
-data: VAEData = {"file": [], "ls_mean": [], "ls_var": []}
+    class VAEData(TypedDict):
+        file: list[str]
+        ls_mean: list[float]
+        ls_var: list[float]
 
-for img_path in images:
-    image = Image.open(img_path).convert("RGB")  # Convert image to RGB
-    image = transform(image)
-    image = image.unsqueeze(0)  # Add batch dimension
-    z_mean, z_var = encoder.forward(image)
+    data: VAEData = {"file": [], "ls_mean": [], "ls_var": []}
 
-    data["file"].append(img_path.name)
-    data["ls_mean"].append(z_mean.tolist()[0])
-    data["ls_var"].append(z_var.tolist()[0])
+    for img_path in images:
+        image = Image.open(img_path).convert("RGB")  # Convert image to RGB
+        image = transform(image)
+        image = image.unsqueeze(0)  # Add batch dimension
+        z_mean, z_var = encoder.forward(image)
 
-with open(
-    "inference_scripts/results/decoded_results_from_env_truth.json",
-    "w",
-    encoding="utf-8",
-) as f:
-    json.dump(data, f, indent=4, ensure_ascii=False)
+        data["file"].append(img_path.name)
+        data["ls_mean"].append(z_mean.tolist()[0])
+        data["ls_var"].append(z_var.tolist()[0])
+
+    with open(
+        f"{output}/decoded_results_from_env_truth.json",
+        "w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)

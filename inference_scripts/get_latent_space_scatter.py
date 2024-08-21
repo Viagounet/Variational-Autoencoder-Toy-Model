@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import json
 
 with open(
-    "inference_scripts/results/decoded_results_from_env_truth.json",
+    "inference_scripts/results/lv/decoded_results_from_env_truth.json",
     "r",
     encoding="utf-8",
 ) as f:
@@ -22,7 +22,7 @@ plt.title("Scatter Plot of ls_mean")
 plt.xlabel("ls_mean_x")
 plt.ylabel("ls_mean_y")
 plt.grid(True)
-plt.savefig("inference_scripts/results/ls_mean_scatter_plot.png")
+plt.savefig("inference_scripts/results/lv/ls_mean_scatter_plot.png")
 
 # Show plot (optional)
 plt.show()

@@ -1,3 +1,5 @@
 imgs
 inference_scripts/data/
 *.pth
+*.png
+*.mp4

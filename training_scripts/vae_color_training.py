@@ -20,7 +20,7 @@ parser.add_argument("-d", "--dim_ls", type=int)
 parser.add_argument("-n", "--name")
 parser.add_argument("-e", "--epochs", type=int)
 parser.add_argument("-s", "--scaling", type=float, default=1)
-
+parser.add_argument("-i", "--input_folder", type=str)
 
 import os
 from PIL import Image
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     img_dir = args.input_folder
     scaling = args.scaling
 
-    first_image_path = glob(f"{img_dir}/*")[0]
+    first_image_path = glob(f"{img_dir}/*.png")[0]
     first_image = Image.open(first_image_path).convert("RGB")
     width, height = first_image.size
 
@@ -88,8 +88,11 @@ if __name__ == "__main__":
             exit()
     else:
         os.mkdir(f"training_logs/{name}")
+
     latent_dim = args.dim_ls
-    with open(f"models/{name}/{name}.json", "w", encoding="utf-8") as f:
+    print(latent_dim, type(latent_dim))
+
+    with open(f"models/{name}/{name}{latent_dim}.json", "w", encoding="utf-8") as f:
         json.dump(
             {
                 "ls_dim": latent_dim,
@@ -109,11 +112,7 @@ if __name__ == "__main__":
         ]
     )
 
-<<<<<<< HEAD
-    img_dir = "imgs/"  # Replace with your images directory
-    dataset = CustomImageDataset(img_dir, transform=transform)
-=======
-    placeholder_image_path = "imgs/multivideos/frames/frame_0000001.png"
+    placeholder_image_path = first_image_path
     placeholder_image = Image.open(placeholder_image_path).convert("RGB")
 
     # Initialize the dataset
@@ -122,7 +121,6 @@ if __name__ == "__main__":
         transform=transform,
         placeholder_image=placeholder_image,
     )
->>>>>>> 2e61834... Minor updates
 
     # Split the dataset into training and testing sets
     train_size = int(0.7 * len(dataset))
@@ -132,6 +130,7 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False)
 
+    print(torch.cuda.is_available())
     # Train the VAE
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     vae = VAE(latent_dim=latent_dim, input_shape=(3, height, width)).to(device)
@@ -165,7 +164,12 @@ if __name__ == "__main__":
                     test_loss += loss.item()
             epochs_test.append(epoch + 1)
             loss_test_logs.append(test_loss / len(test_loader.dataset))
-
+            print(
+                f"TEST ({epoch} / {num_epochs}): ", test_loss / len(test_loader.dataset)
+            )
+        print(
+            f"TRAIN ({epoch} / {num_epochs}): ", train_loss / len(train_loader.dataset)
+        )
         epochs_train.append(epoch + 1)
         loss_train_logs.append(train_loss / len(train_loader.dataset))
 
@@ -182,4 +186,4 @@ if __name__ == "__main__":
         plt.savefig(f"training_logs/{name}/loss_graph.png")
 
     # Save the model state_dict
-    torch.save(vae.state_dict(), f"models/sim1_ls{latent_dim}.pth")
+    torch.save(vae.state_dict(), f"models/lv/{name}{latent_dim}.pth")

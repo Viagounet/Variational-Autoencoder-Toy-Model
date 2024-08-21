@@ -1,0 +1,9 @@
+{
+    "ls_dim": 32,
+    "max_epochs": 50,
+    "data_source": "imgs/l",
+    "images_size": [
+        256,
+        192
+    ]
+}

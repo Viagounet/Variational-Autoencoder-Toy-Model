@@ -23,7 +23,7 @@ from training_scripts.vae_torch import VAE
 
 
 with open(
-    "inference_scripts/results/decoded_results_from_env_truth.json",
+    "inference_scripts/results/lv/decoded_results_from_env_truth.json",
     "r",
     encoding="utf-8",
 ) as f:
@@ -77,8 +77,9 @@ graph = dcc.Graph(
 )
 # Load the trained VAE model
 MODEL = "models/sim1_ls2.pth"
+SHAPE = (3, 256, 192)
 latent_dim = int(MODEL.replace("models/sim1_ls", "").split(".")[0])
-vae = VAE(latent_dim)
+vae = VAE(latent_dim, SHAPE)
 vae.load_state_dict(torch.load(MODEL))
 vae.eval()
 
